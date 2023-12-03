@@ -69,7 +69,7 @@ void loop()
   if (packetSize)
   {
     Serial.printf("Received %d bytes from %s, port %d\n", packetSize, Udp.remoteIP().toString().c_str(), Udp.remotePort());
-    int len = Udp.read(incomingPacket, 255);
+    int len = Udp.read(incomingPacket, localUdpPort);
     if (len > 0)
     {
      incomingPacket[len] = '\0';

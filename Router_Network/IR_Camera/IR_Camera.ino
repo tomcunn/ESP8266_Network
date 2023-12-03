@@ -12,8 +12,11 @@ WiFiUDP Udp;
 WiFiClient client;
 unsigned int localUdpPort = 5000; // local port to listen on
 
+IPAddress SendIP(192,168,0,173);
+
+
 char incomingPacket[255]; // buffer for incoming packets
-char replyPacket[] = "I am the server"; // a reply string to send back
+char replyPacket[] = "I am the camera"; // a reply string to send back
 
 void connectToWiFi() 
 {
@@ -42,7 +45,7 @@ void connectToWiFi()
       Serial.println(WiFi.localIP());
       digitalWrite(BUILTIN_LED, HIGH);
    }
-   Serial.println(F("Setup ready"));
+   Serial.println("Setup ready");
 }
    
 
@@ -58,30 +61,34 @@ void setup()
 
 void loop()
 {
-  static int packetRecieved = false;
-  char buf[3];
-  static int counter = 48;
+  //static int packetRecieved = false;
+  //char buf[3];
+  //static int counter = 48;
   
-  //Check to see if a packet has come in the door
-  int packetSize = Udp.parsePacket();
+  //Sending a packet
+  Serial.println("Sending response packet");
+  Udp.beginPacket(SendIP,localUdpPort);
+  Udp.write(replyPacket);
+  Udp.endPacket();
   
-  //If the packet is present
-  if (packetSize)
-  {
-    Serial.printf("Received %d bytes from %s, port %d\n", packetSize, Udp.remoteIP().toString().c_str(), Udp.remotePort());
-    int len = Udp.read(incomingPacket, 255);
-    if (len > 0)
-    {
-     incomingPacket[len] = '\0';
-    }
-    Serial.printf("UDP packet contents: %s\n", incomingPacket);
 
-
-    //Send a response packet
-    Serial.println("Sending response packet");
-    Udp.beginPacket(Udp.remoteIP(),Udp.remotePort());
-    Udp.write(replyPacket);
-    Udp.endPacket();
-    packetRecieved = true;
-  }
+  ////Check to see if a packet has come in the door
+  //int packetSize = Udp.parsePacket();
+  //
+  ////If the packet is present
+  //if (packetSize)
+  //{
+  //  Serial.printf("Received %d bytes from %s, port %d\n", packetSize, Udp.remoteIP().toString().c_str(), Udp.remotePort());
+  //  int len = Udp.read(incomingPacket, 255);
+  //  if (len > 0)
+  //  {
+  //   incomingPacket[len] = '\0';
+  //  }
+  //  Serial.printf("UDP packet contents: %s\n", incomingPacket);
+  //
+  //
+  //
+  //  packetRecieved = true;
+  //}
+  delay(100);
 }
