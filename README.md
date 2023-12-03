@@ -3,3 +3,6 @@ Creating a small network to allow me to work on the microtractor project. Wantin
 
 ![image](https://github.com/tomcunn/ESP8266_Network/assets/4383135/a074046c-a300-477b-859a-ccb9ee2a9850)
 
+# Links
+
+https://stackoverflow.com/questions/39064193/esp8266-send-udp-string-to-ap
