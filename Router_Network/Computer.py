@@ -1,6 +1,7 @@
 import pygame
 import socket
 import time
+import select
 
 
 print("starting program")
@@ -29,6 +30,7 @@ class UDP_Connection:
         UDP_PORT = 5000
         self.server = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self.server.bind((UDP_SERVER,UDP_PORT))
+        self.server.setblocking(0)
 
     def packetsend(self,dataToSend,connection):
         self.server.sendto(dataToSend.encode(),connection.address)
@@ -45,22 +47,23 @@ ConnectionList = [tractor_grey,tractor_orange,IR_Camera]
 # Main Loop
 while(True):
     
-    #Receive a UDP packet    
-    data, addr = myUDP.server.recvfrom(1024)
+    ready = select.select([myUDP.server], [], [], 0.1)
+    if ready[0]:
+        data,addr = myUDP.server.recvfrom(100)
 
-    print("Does this timeout?")
-    
-    #Check to see if this is from a new address, check the connection list
-    for myConnection in ConnectionList:
-        myConnection.register(data,addr)
+        #Check to see if this is from a new address, check the connection list
+        for myConnection in ConnectionList:
+             myConnection.register(data,addr)
 
-    if(data):
-        counter=counter+1
+        if(data):
+            counter=counter+1
   #     print(str(data) + ","+ str(addr) + "," + str(counter));
+    
+    #print("not blocking no more")
     
     if(tractor_grey.connection == True):
         myUDP.packetsend("This is for the grey tractor",tractor_grey)
     
     if(tractor_orange.connection == True):
-      #  print("Send to" + str(tractor_orange.address))
+        print("Send to" + str(tractor_orange.address))
         myUDP.packetsend("This is for the orange tractor",tractor_orange)
