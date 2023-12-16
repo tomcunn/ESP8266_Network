@@ -5,57 +5,62 @@ import time
 
 print("starting program")
 
-
-UDP_SERVER = "192.168.0.173"
-UDP_PORT = 5000
-server = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-server.bind((UDP_SERVER,UDP_PORT))
-MESSAGE = b"CPU Message"
-
 counter = 0
 
 # Create a class that stores all of the parameters regarding the tractors
-class IP_Connection:
+class ESP8266_Connection:
     def __init__(self,name):
         self.name = name
         self.address = ('0.0.0.0',10000)
         self.connection = False
+    
+    def register(self,data,addr):
+        if(self.connection == False):
+            if(data.decode() == self.name):
+                self.connection = True
+                self.address = addr
+                print(str(self.name) + " Connected @ " + str(self.address))
+                    
 
-tractor_grey =      IP_Connection("Rover_Grey")
-tractor_orange =    IP_Connection("Rover_Orange")
-IR_Camera =         IP_Connection("IR_Camera")
+#Manage the overall UDP Interface
+class UDP_Connection:
+    def __init__(self):
+        UDP_SERVER = "192.168.0.173"
+        UDP_PORT = 5000
+        self.server = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        self.server.bind((UDP_SERVER,UDP_PORT))
+
+    def packetsend(self,dataToSend,connection):
+        self.server.sendto(dataToSend.encode(),connection.address)
+
+
+myUDP = UDP_Connection()
+
+tractor_grey =      ESP8266_Connection("Rover_Grey")
+tractor_orange =    ESP8266_Connection("Rover_Orange")
+IR_Camera =         ESP8266_Connection("IR_Camera")
+
+ConnectionList = [tractor_grey,tractor_orange,IR_Camera]
 
 # Main Loop
 while(True):
-    #Recieve a UDP packet    
-    data, addr = server.recvfrom(1024) # buffer size is 1024 bytes
     
-    #check to see if the request is to register
-    if(tractor_orange.connection == False):    
-        if(data.decode() == tractor_orange.name):
-            tractor_orange.connection = True
-            tractor_orange.address = addr
-            print(str(tractor_orange.name) + " Connected @ " + str(tractor_orange.address))
+    #Receive a UDP packet    
+    data, addr = myUDP.server.recvfrom(1024)
 
-    if(tractor_grey.connection == False):
-        if(data.decode() == tractor_grey.name):
-            tractor_grey.connection = True
-            tractor_grey.address = addr
-            print(str(tractor_grey.name) + " Connected @ "  + str(tractor_grey.address))
+    print("Does this timeout?")
+    
+    #Check to see if this is from a new address, check the connection list
+    for myConnection in ConnectionList:
+        myConnection.register(data,addr)
 
-    if(IR_Camera.connection == False):
-        if(data.decode() == IR_Camera.name):
-            IR_Camera.connection = True
-            IR_Camera.address = addr
-            print("Camera Connected"  + str(IR_Camera.address))
-        
     if(data):
         counter=counter+1
   #     print(str(data) + ","+ str(addr) + "," + str(counter));
     
     if(tractor_grey.connection == True):
-        server.sendto("This is for the grey tractor".encode(),tractor_grey.address)
+        myUDP.packetsend("This is for the grey tractor",tractor_grey)
     
     if(tractor_orange.connection == True):
       #  print("Send to" + str(tractor_orange.address))
-        server.sendto("This is for the orange tractor".encode(),tractor_orange.address)
+        myUDP.packetsend("This is for the orange tractor",tractor_orange)
