@@ -18,9 +18,9 @@
 //******************************************************************
 //Set the name of the tractor here, could use EEROM!!
 
-char replyPacket[] = "Rover_Grey"; // a reply string to send back
-const char *ssid = "***********";
-const char *password = "**********";
+char replyPacket[] = "Rover_Orange"; // a reply string to send back
+const char *ssid = "**";
+const char *password = "**";
 
 //********************************************************************
 
@@ -36,7 +36,7 @@ WiFiUDP Udp;
 WiFiClient client;
 unsigned int localUdpPort = 5000; // local port to listen on
 
-char incomingPacket[255]; // buffer for incoming packets
+
 
 void connectToWiFi() 
 {
@@ -188,6 +188,7 @@ void loop()
   //Send the Identification packet
   if(!IP_registered)
   {
+    delay(1000);
     Udp.beginPacket(SendIP,localUdpPort);
     Udp.write(replyPacket);
     Udp.endPacket();
@@ -200,18 +201,19 @@ void loop()
   if (packetSize)
   { 
     //Create an array to hold the data
-    byte incoming_data[packetSize];
-    int len = Udp.read(incomingPacket, Udp.remotePort());
-
-    if(incomingPacket == "IP_OK")
+    char incoming_data[packetSize];
+    int len = Udp.read(incoming_data, Udp.remotePort());
+   // Serial.println(incoming_data);
+    if((incoming_data[0] == 0x49) && (incoming_data[1] == 0x50) && (incoming_data[2] == 0x4C))
     {
       IP_registered = 1;
+      Serial.println("IP_OK");
     }
-    else if(incomingPacket[0] = 0x10)
+    else if(incoming_data[0] == 0x4D)
     {
       //Process travel direction
-      ProcessMotionControl(incomingPacket[1],incomingPacket[2]);
+      Serial.println(incoming_data);
+      ProcessMotionControl(incoming_data[1],incoming_data[2]);
     }
   }
-  delay(100);
 }
