@@ -16,17 +16,24 @@ LEFT_SPEED/RIGHT_SPEED:
 Motion Packet:
 This the packet to control the speed of the vehicle and the most used packet. 
 
-| Description  | Byte Position    | 
-|--------------|------------------|
-| 0x4D (M)     | 1      |
-| LEFT_SPEED   | 2      |
-| RIGHT_SPEED  | 3      |
+|Byte Position | Description  |
+|--------------|--------------|
+| 1            | 0x4D (M)     |
+| 2            | LEFT_SPEED   |
+| 3            | RIGHT_SPEED  |
 
 
 
-Packet:
+IP Acknowledge Packet:
 When this packet is received, the ESP8266 can quit sending identification packet as the identifaction has already been logged.
-0x49, 0x50, 0x4C  (IP is acknowledged)
+
+|Byte Position | Description  |
+|--------------|--------------|
+| 1            | 0x49 (O)     |
+| 2            | 0x50         |
+| 3            | 0x4C         |
+
+0x49, 0x50, 0x4C  
 
 # Links
 
