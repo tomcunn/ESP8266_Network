@@ -13,9 +13,16 @@ LEFT_SPEED/RIGHT_SPEED:
 | Full Foward  | 250      |
 | Full Reverse |   0      |
 
-Packet:
+Motion Packet:
 This the packet to control the speed of the vehicle and the most used packet. 
-0x4D, LEFT_SPEED, RIGHT_SPEED
+
+| Description  | Byte Position    | 
+|--------------|------------------|
+| 0x4D (M)     | 1      |
+| LEFT_SPEED   | 2      |
+| RIGHT_SPEED  | 3      |
+
+
 
 Packet:
 When this packet is received, the ESP8266 can quit sending identification packet as the identifaction has already been logged.
