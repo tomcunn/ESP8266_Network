@@ -6,9 +6,12 @@ Creating a small network to allow me to work on the microtractor project. This p
 # Protocol
 
 LEFT_SPEED/RIGHT_SPEED: 
-125 = stop
-250 = Full Speed Forward
-0 = Fulle Speed Reverse
+
+| Description  | Value    | 
+|--------------|----------|
+| Stop         | 125      |
+| Full Foward  | 250      |
+| Full Reverse |   0      |
 
 Packet:
 This the packet to control the speed of the vehicle and the most used packet. 
