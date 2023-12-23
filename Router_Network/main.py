@@ -2,59 +2,28 @@ import pygame
 import socket
 import time
 import select
+import WifiConnection as wifi
+import  JoystickControl as joy
 
 
 print("starting program")
 
 counter = 0
 
-# Create a class that stores all of the parameters regarding the tractors
-class ESP8266_Connection:
-    def __init__(self,name):
-        self.name = name
-        self.address = ('0.0.0.0',10000)
-        self.connection = False
-    
-    def register(self,data,addr):
-        if(self.connection == False):
-            if(data.decode() == self.name):
-                self.connection = True
-                self.address = addr
-                print(str(self.name) + " Connected @ " + str(self.address))
-                datatoSend = bytes([0x49,0x50,0x4C])
-                myUDP.packetsend2(datatoSend,self.address)
-                    
-
-#Manage the overall UDP Interface
-class UDP_Connection:
-    def __init__(self):
-        #UDP_SERVER = "192.168.0.173"
-        UDP_SERVER = '192.168.4.35'
-        UDP_PORT = 5000
-        self.server = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        self.server.bind((UDP_SERVER,UDP_PORT))
-        self.server.setblocking(0)
-
-    def packetsend(self,dataToSend,connection):
-        self.server.sendto(dataToSend.encode(),connection.address)
-
-    def packetsend2(self,dataToSend,addr):
-        self.server.sendto(dataToSend,addr)
-
-    def packetsend3(self,dataToSend,connection):
-        self.server.sendto(dataToSend,connection.address)
 ##################### INIT ########################################
-myUDP = UDP_Connection()
+myUDP = wifi.UDP_Connection()
 
-tractor_grey =      ESP8266_Connection("Rover_Grey")
-tractor_orange =    ESP8266_Connection("Rover_Orange")
-IR_Camera =         ESP8266_Connection("IR_Camera")
+tractor_grey =      wifi.ESP8266_Connection("Rover_Grey")
+tractor_orange =    wifi.ESP8266_Connection("Rover_Orange")
+IR_Camera =         wifi.ESP8266_Connection("IR_Camera")
 
 ConnectionList = [tractor_grey,tractor_orange,IR_Camera]
 
 ################ PYGAME INIT ###############################
 pygame.init()
- 
+
+myJOY = joy.GamePadController()
+
 # Set the width and height of the screen [width,height]
 size = [500, 500]
 screen = pygame.display.set_mode(size)
@@ -91,6 +60,11 @@ while(run_loop):
                 speed = 0x00
                 print(speed)
 
+
+    #Read in the joystick data
+    x,y = myJOY.GetJoyStickData()
+
+    print(x,y)
 
     #Check for data from tractors
     ready = select.select([myUDP.server], [], [], 0.1)
