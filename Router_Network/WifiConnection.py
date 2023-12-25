@@ -1,6 +1,6 @@
 import socket
 
-IP_OF_COMPUTER = '192.168.4.35' #"192.168.0.173"
+IP_OF_COMPUTER = "192.168.0.173"
 
 # Create a class that stores all of the parameters regarding the tractors
 class ESP8266_Connection:
@@ -10,13 +10,14 @@ class ESP8266_Connection:
         self.connection = False
     
     def register(self,data,addr):
+        datatoSend =  bytes([0x00,0x00,0x00])
         if(self.connection == False):
             if(data.decode() == self.name):
                 self.connection = True
                 self.address = addr
                 print(str(self.name) + " Connected @ " + str(self.address))
                 datatoSend = bytes([0x49,0x50,0x4C])
-                self.packetsend2(datatoSend,self.address)
+        return datatoSend
                     
 
 #Manage the overall UDP Interface

@@ -18,7 +18,9 @@ def RX_Data():
 
         #Check to see if this is from a new address, check the connection list
         for myConnection in ConnectionList:
-             myConnection.register(data,addr)
+            dataToSend = myConnection.register(data,addr)
+            myUDP.packetsend2(dataToSend,addr)
+             
 
 
 ##################### INIT ########################################
@@ -45,6 +47,8 @@ while(run_loop):
     joyx,joyy = myJOY.GetJoyStickData()
     run_loop, key_press = myGraphics.events()
 
+    myGraphics.AddMouseClicksToList()
+
     #Process Location
 
 
@@ -53,11 +57,11 @@ while(run_loop):
     #print(speedleft,speedright)
 
     keyspeedleft,keyspeedright  = controls.SpeedControlKeyboard(key_press)
-    print(keyspeedleft,keyspeedright)
+    #print(keyspeedleft,keyspeedright)
 
     #Send outputs
     if(tractor_grey.connection == True):
-        datatoSend = bytes([0x4D,int(speedleft),int(speedright)])
+        datatoSend = bytes([0x4D,int(keyspeedleft),int(keyspeedright)])
         myUDP.packetsend3(datatoSend,tractor_grey)
 
     if(tractor_orange.connection == True):

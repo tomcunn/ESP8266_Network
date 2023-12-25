@@ -55,12 +55,12 @@ def SpeedControlKeyboard(keystroke):
         SpeedControlKeyboard.right = 0x00
 
     # checking if key "a" was pressed
-    if (keystroke == pygame.K_a):
+    if (keystroke == pygame.K_d):
         SpeedControlKeyboard.left = 0x00
         SpeedControlKeyboard.right = 0xFA
 
     # checking if key "d" was pressed
-    if (keystroke == pygame.K_d):
+    if (keystroke == pygame.K_a):
         SpeedControlKeyboard.left = 0xFA
         SpeedControlKeyboard.right = 0x00
 
