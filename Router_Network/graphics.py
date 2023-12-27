@@ -14,6 +14,7 @@ lightbrown = (202,176,0)
 darkbrown = (128,89,0)
 blue = (0,0,255)
 red = (255,0,0)
+green = (0,255,0)
 
 field = np.zeros((WIDTH,HEIGHT))
 
@@ -45,7 +46,7 @@ class graphics:
         self.clock = pygame.time.Clock()
 
     def draw(self):
-         pygame.draw.circle(self.screen, (0,255,0), (250,250), 20)
+         pygame.draw.circle(self.screen, (0,255,0), (250,250), 1)
 
     def update(self):
         self.draw()
@@ -114,7 +115,7 @@ class graphics:
             print("Field is: " + str(percent_screen) +" percent of screen")
 
     def GeneratePath(self):
-         TOOL_SIZE = 10
+         TOOL_SIZE = 20
          if(self.key_press == pygame.K_m):
             print("Generating Toolpaths")
             x_list = []
@@ -127,11 +128,51 @@ class graphics:
                         break
             #Based on the tool width, determine which points to act upon
             #Find the first point
-            First_point = x_list[0] + TOOL_SIZE/2
-            x_action_list=[First_point]
+            First_point = x_list[0] + TOOL_SIZE
+            x_action_list=[int(First_point)]
+            northside_points = []
+            southside_points = []
             last_point = x_list[len(x_list)- 1]
             print("First point: " + str(First_point))
             print("last point: " + str(last_point))
+            x = First_point
+            while x < last_point:
+                x = x + TOOL_SIZE
+                x_action_list.append(x)
+
+            #FIND THE SOUTH POINTS
+            for i in x_action_list:
+                previous_pixel_color = (0,0,0)
+                #Now we have a list of (x's) so need to find the y's
+                for j in range (HEIGHT):
+                    pixel_color = self.screen.get_at((int(i), j))
+                    if(pixel_color != (0,0,255) and previous_pixel_color == (0,0,255)):
+                        point = j - (TOOL_SIZE)
+                        southside_points.append((i,point))
+                        pygame.draw.circle(self.screen,green,(i,point),2)
+                        break
+                    previous_pixel_color = pixel_color
+
+            #FIND THE NORTH POINTS
+            for i in x_action_list:
+                #Now we have a list of (x's) so need to find the y's
+                for j in range (HEIGHT):
+                    pixel_color = self.screen.get_at((int(i), j))
+                    if(pixel_color == (0,0,255)):
+                        point = j + (TOOL_SIZE)
+                        northside_points.append((i,point))
+                        pygame.draw.circle(self.screen,green,(i,point),2)
+                        break
+
+            #DRAW THE NORTH SOUTH LINES
+            for i in range(len(northside_points)):
+                print(northside_points[i])
+                print(southside_points[i])
+                pygame.draw.line(self.screen,green,northside_points[i],southside_points[i],1)
+                
+            print(len(x_action_list))
+           
+
 
 
             
