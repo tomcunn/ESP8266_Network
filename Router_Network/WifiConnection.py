@@ -2,6 +2,7 @@ import socket
 
 IP_OF_COMPUTER = "192.168.0.173"
 
+
 # Create a class that stores all of the parameters regarding the tractors
 class ESP8266_Connection:
     def __init__(self,name):

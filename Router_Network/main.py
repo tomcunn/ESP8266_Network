@@ -65,7 +65,7 @@ while(run_loop):
         myUDP.packetsend3(datatoSend,tractor_grey)
 
     if(tractor_orange.connection == True):
-        datatoSend = bytes([0x4D,int(keyspeedleft),int(keyspeedright)])
+        datatoSend = bytes([0x4D,int(speedleft),int(speedright)])
         myUDP.packetsend3(datatoSend,tractor_orange)
 
     #Update graphics
