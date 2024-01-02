@@ -6,6 +6,8 @@
 #
 ############################################
 
+import math
+
 def Navigation(current_position, list_of_points):
     current_point = 0
     left_speed = 0
@@ -27,3 +29,7 @@ def ComputeHeading():
     heading = 0
 
     return heading
+
+def ComputeDistance(pointa,pointb):
+    distance = math.sqrt(((pointa[0]-pointb[0])**2) + ((pointa[1]-pointb[1])**2))
+    return distance

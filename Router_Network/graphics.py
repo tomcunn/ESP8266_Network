@@ -3,8 +3,6 @@ import numpy as np
 from enum import Enum
 
 
-HEIGHT = 500
-WIDTH = 500
 REDRAW = 25
 
 # Define some colors
@@ -16,7 +14,7 @@ blue = (0,0,255)
 red = (255,0,0)
 green = (0,255,0)
 
-field = np.zeros((WIDTH,HEIGHT))
+
 
 point_list = []
 np_points = np.array = []
@@ -36,10 +34,10 @@ class graphics:
         pygame.init()
         self.season = Season.Tillage
         pygame.display.set_caption("Multi Rover Control")
-        # Set the width and height of the screen [width,height]
-        size = [500, 500]
-        self.screen = pygame.display.set_mode(size)
-
+        # Set the width and self.HEIGHT of the screen [width,self.HEIGHT]
+        self.WIDTH, self.HEIGHT = pygame.display.Info().current_w, pygame.display.Info().current_h
+        self.screen = pygame.display.set_mode((0,0),pygame.FULLSCREEN)
+        self.field  = np.zeros((self.WIDTH,self.HEIGHT))
         self.screen.fill(lightbrown)
 
         # Used to manage how fast the screen updates
@@ -100,18 +98,18 @@ class graphics:
             percent_screen = 0
             ##Check every point to see if it is within the polygon
             #Check to see if the points are blue
-            for x in range(WIDTH):
-                for y in range(HEIGHT):
+            for x in range(self.WIDTH):
+                for y in range(self.HEIGHT):
                     pixel_color = self.screen.get_at((x, y))
                     if(pixel_color[0] == 0 and pixel_color[1] == 0 and pixel_color[2] == 255):
-                        field[x,y] = 10
+                        self.field[x,y] = 10
                         field_size = field_size +1
                         
                         
             print("field scan complete")
             print("Field Size is: " + str(field_size) + " pixels")
 
-            percent_screen = field_size/(WIDTH*HEIGHT)*100
+            percent_screen = field_size/(self.WIDTH*self.HEIGHT)*100
             print("Field is: " + str(percent_screen) +" percent of screen")
 
     def GeneratePath(self):
@@ -121,9 +119,9 @@ class graphics:
             x_list = []
             #Create a list of X coordinates that have field in them
             print("Creating a list of x values that need a path")
-            for x in range(WIDTH):
-                for y in range(HEIGHT):
-                    if(field[x,y] == 10):
+            for x in range(self.WIDTH):
+                for y in range(self.HEIGHT):
+                    if(self.field[x,y] == 10):
                         x_list.append(x)
                         break
             #Based on the tool width, determine which points to act upon
@@ -144,7 +142,7 @@ class graphics:
             for i in x_action_list:
                 previous_pixel_color = (0,0,0)
                 #Now we have a list of (x's) so need to find the y's
-                for j in range (HEIGHT):
+                for j in range (self.HEIGHT):
                     pixel_color = self.screen.get_at((int(i), j))
                     if(pixel_color != (0,0,255) and previous_pixel_color == (0,0,255)):
                         point = j - (TOOL_SIZE)
@@ -156,7 +154,7 @@ class graphics:
             #FIND THE NORTH POINTS
             for i in x_action_list:
                 #Now we have a list of (x's) so need to find the y's
-                for j in range (HEIGHT):
+                for j in range (self.HEIGHT):
                     pixel_color = self.screen.get_at((int(i), j))
                     if(pixel_color == (0,0,255)):
                         point = j + (TOOL_SIZE)
@@ -173,6 +171,7 @@ class graphics:
             print(len(x_action_list))
            
 
-
+    def DrawPosition(self,xpos,ypos,my_color):
+        pygame.draw.circle(self.screen,my_color,(int(xpos*1.2269+19), int(self.HEIGHT - (ypos*1.12994-188))),2)
 
             

@@ -42,6 +42,6 @@ class GamePadController:
         if(self.gamepad_ID != 99):
             x_pos = self.mypad.get_axis(0)
             y_pos = self.mypad.get_axis(1)
-#           print(str(x_pos),str(y_pos))
+            print(str(x_pos),str(y_pos))
 
         return x_pos,y_pos

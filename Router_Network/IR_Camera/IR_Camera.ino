@@ -6,8 +6,8 @@
 
 //*******************************************************************
 char replyPacket[] = "IR_Camera"; // a reply string to send back
-const char *ssid = "***";
-const char *password = "***";
+const char *ssid = ""***";";
+const char *password = ""***";";
 //******************************************************************
 
 WiFiUDP Udp;
@@ -84,7 +84,7 @@ void loop()
   static bool IP_registered = false;
   
   //Send the Identification packet
-  if(!IP_registered)
+  /*if(!IP_registered)
   {
     delay(1000);
     Udp.beginPacket(SendIP,localUdpPort);
@@ -106,19 +106,21 @@ void loop()
       IP_registered = 1;
       Serial.println("IP_OK");
     }
-  }
+  }*/
   
   GetPosition();
+  delay (10);
   
 }
 
 void GetPosition()
 {
-  char buf[8];
+  char buf[14];
   static int counter = 48;
   
   //Start the IR sensor
   myDFRobotIRPosition.requestPosition();
+
   if (myDFRobotIRPosition.available()) 
   {
     for (int i=0; i<4; i++) 
@@ -135,7 +137,13 @@ void GetPosition()
 
   Serial.print(positionX[0]);
   Serial.print(",");
-  Serial.println(positionY[0]);
+  Serial.print(positionY[0]);
+
+  Serial.print(",");
+  
+  Serial.print(positionX[1]);
+  Serial.print(",");
+  Serial.println(positionY[1]);
 
   //Convert the int to a byte array to be sent over UDP
   buf[0] = 0x80;
@@ -145,7 +153,13 @@ void GetPosition()
   buf[4] = (char)(positionY[0] & 0xFF);
   buf[5] = (char)((positionY[0] & 0xFF00) >> 8);
   buf[6] = (char)58;
-  buf[7] = (char)counter;
+  buf[7] = (char)(positionX[1] & 0xFF);
+  buf[8] = (char)((positionX[1] & 0xFF00) >> 8);
+  buf[9] = (char)58;
+  buf[10] = (char)(positionY[1] & 0xFF);
+  buf[11] = (char)((positionY[1] & 0xFF00) >> 8);
+  buf[12] = (char)58;
+  buf[13] = (char)counter;
 
   Udp.beginPacket(SendIP,localUdpPort);
   Udp.write(buf);
