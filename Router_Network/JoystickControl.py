@@ -9,7 +9,8 @@
 
 import pygame
 
-TARGET_JOYSTICK = "Afterglow Gamepad for PS3"
+TARGET_JOYSTICK = "Nintendo Switch Pro Controller"
+#TARGET_JOYSTICK = "Afterglow Gamepad for PS3"
 
 class GamePadController:
     def __init__(self):
@@ -42,6 +43,11 @@ class GamePadController:
         if(self.gamepad_ID != 99):
             x_pos = self.mypad.get_axis(0)
             y_pos = self.mypad.get_axis(1)
-            print(str(x_pos),str(y_pos))
+            x_button = self.mypad.get_button(2)
+            b_button = self.mypad.get_button(1)
+            a_button = self.mypad.get_button(0)
+            y_button = self.mypad.get_button(3)
 
-        return x_pos,y_pos
+            #print(str(x_pos),str(y_pos))
+
+        return x_pos,y_pos,x_button,b_button,a_button,y_button

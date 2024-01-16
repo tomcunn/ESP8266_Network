@@ -16,7 +16,7 @@ counter = 0
 
 def RX_Data():
     data = [0x00,0x00,0x00]
-    ready = select.select([myUDP.server], [], [], 0.1)
+    ready = select.select([myUDP.server], [], [], 0.04)
     if ready[0]:
         data,addr = myUDP.server.recvfrom(100)
 
@@ -40,6 +40,9 @@ ConnectionList = [tractor_grey,tractor_orange,IR_Camera]
 myGraphics = graphics.graphics()
 myJOY = joy.GamePadController()
 
+
+hitch_pos = 90
+
 run_loop = True
 
 
@@ -50,7 +53,7 @@ while(run_loop):
     mydata = RX_Data()
 
     #Process Operator Inputs
-    joyx,joyy = myJOY.GetJoyStickData()
+    joyx,joyy,x_button,b_button,a_button,y_button = myJOY.GetJoyStickData()
     run_loop, key_press = myGraphics.events()
 
     myGraphics.AddMouseClicksToList()
@@ -63,20 +66,24 @@ while(run_loop):
         myGraphics.DrawPosition(x1,y1,red)
         myGraphics.DrawPosition(x2,y2,green)
     
+    #Process Hitch Controls
+    hitch_pos = controls.HitchControl(hitch_pos,x_button,b_button)
+    #print(hitch_pos)
     #Process Controls
     speedleft,speedright = controls.SpeedControlJoystick(joyx,joyy)
-    #print(speedleft,speedright)
+    #print(int(speedleft),int(speedright))
 
     keyspeedleft,keyspeedright  = controls.SpeedControlKeyboard(key_press)
     #print(keyspeedleft,keyspeedright)
 
     #Send outputs
     if(tractor_grey.connection == True):
-        datatoSend = bytes([0x4D,int(speedleft),int(speedright)])
+        datatoSend = bytes([0x4D,int(speedleft),int(speedright),int(hitch_pos),int(a_button),int(y_button)])
         myUDP.packetsend3(datatoSend,tractor_grey)
+        print(datatoSend)
 
     if(tractor_orange.connection == True):
-        datatoSend = bytes([0x4D,int(keyspeedleft),int(keyspeedright)])
+        datatoSend = bytes([0x4D,int(speedleft),int(speedright),int(hitch_pos)])
         myUDP.packetsend3(datatoSend,tractor_orange)
 
     #Update graphics

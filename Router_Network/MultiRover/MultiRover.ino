@@ -10,15 +10,19 @@
 #define pwmSDA D2
 #define pwmSCL D1
 
-#define MIN_PULSE_WIDTH       450
-#define MAX_PULSE_WIDTH       2450
-#define DEFAULT_PULSE_WIDTH   1500
-#define FREQUENCY             200
+#define FRONT_HITCH 3
+
+#define MIN_PULSE_WIDTH       200  //150
+#define MAX_PULSE_WIDTH       500  //600
+#define FREQUENCY             50
+
+//Function Prototypes
+void ProcessFrontHitchControl(byte desired_angle);
 
 //******************************************************************
 //Set the name of the tractor here, could use EEROM!!
 
-char replyPacket[] = "Rover_Orange"; // a reply string to send back
+char replyPacket[] = "Rover_Grey"; // a reply string to send back
 const char *ssid = "**";
 const char *password = "**";
 
@@ -81,23 +85,55 @@ void setup_motors()
   //Set Frequency for PCA chip
   Wire.begin(pwmSDA, pwmSCL);
   pwm.begin();
-  pwm.setPWMFreq(200);
+  pwm.setPWMFreq(FREQUENCY);
   
   //Drive Motor Right
   pinMode(D6, OUTPUT);
   pinMode(D5, OUTPUT);
   digitalWrite(D6, LOW);
   digitalWrite(D5, LOW);
-  pwm.setPWM(8, 4096, 0);
+  pwm.setPWM(8, 0, 4096);
 
   //Drive Motor Left
   pinMode(D7, OUTPUT);
   pinMode(D8, OUTPUT);
   digitalWrite(D7, LOW);
   digitalWrite(D8, LOW);
-  pwm.setPWM(9, 4096, 0);
+  pwm.setPWM(9, 0, 4096);
+
+  //Setup the Hitch
+  ProcessFrontHitchControl(90);
 }
 
+//***************************************************************
+//
+//  Function: ProcessFrontHitchControl
+//
+//  Move the front hitch up and down
+//
+//  Defaults to 90, can move to 180 or 0
+//
+//**************************************************************
+void ProcessFrontHitchControl(byte desired_angle)
+{
+  long degrees = (long)desired_angle;
+  uint16_t pulselength;
+  pulselength = map(degrees, 0, 180, MIN_PULSE_WIDTH, MAX_PULSE_WIDTH);
+  pwm.setPWM(FRONT_HITCH,  0, pulselength);
+}
+
+//************************************************************
+//
+//  Function: ProcessMotionControl
+//
+//  Process the left and right drive commands to the wheel 
+//  motors 
+//  
+//  Full Speed Forward = 250
+//  Stop               = 125
+//  Full Speed Reverse =   0
+//
+//************************************************************
 void ProcessMotionControl(byte LeftCommand, byte RightCommand)
 {
   //Take off the offset, the value should be between -100 and 100
@@ -106,15 +142,8 @@ void ProcessMotionControl(byte LeftCommand, byte RightCommand)
   int value = 0;
   
   //****************LEFT SIDE***************
-  
   value = DeterminePercent(abs(LeftPercent));
   
- /* Serial.print(LeftPercent);
-  Serial.print(",");
-  Serial.print(LeftCommand);
-  Serial.print(",");
-  Serial.println(value);
-  */
   if(LeftPercent < 0)
   {
     digitalWrite(D6, LOW);
@@ -133,7 +162,7 @@ void ProcessMotionControl(byte LeftCommand, byte RightCommand)
   {
     digitalWrite(D6, LOW);
     digitalWrite(D5, LOW);
-    pwm.setPWM(8, 4096, 0);
+    pwm.setPWM(8, 0, 4096);
   }
 
   //****************RIGHT SIDE**************
@@ -158,11 +187,16 @@ void ProcessMotionControl(byte LeftCommand, byte RightCommand)
   {
     digitalWrite(D7, LOW);
     digitalWrite(D8, LOW);
-    pwm.setPWM(9, 4096, 0);
+    pwm.setPWM(9, 0, 4096);
   }
 }
-   
-
+//*****************************************************
+//
+//  Function: Setup
+//
+//  Run the init task
+//
+///****************************************************
 void setup()
 { 
   Serial.begin(115200);
@@ -170,6 +204,7 @@ void setup()
   delay(3000);
 
   setup_motors();
+
   
   pinMode(BUILTIN_LED,OUTPUT);
   connectToWiFi();
@@ -181,9 +216,17 @@ void setup()
   delay(1000);
 }
 
+//*******************************************************
+//
+//  Function: Loop
+//
+//  Runs the main loop of the project
+//
+//*******************************************************
 void loop()
 {
   static bool IP_registered = false;
+  static bool EnableDriveTrain = false;
   
   //Send the Identification packet
   if(!IP_registered)
@@ -203,17 +246,49 @@ void loop()
     //Create an array to hold the data
     char incoming_data[packetSize];
     int len = Udp.read(incoming_data, Udp.remotePort());
-   // Serial.println(incoming_data);
+    
+    Serial.println(incoming_data);
+
+    //Check for enable/disable commands
+    if(incoming_data[0] == 0x4D)
+    {
+      //Check for A Button to Enable
+      if(incoming_data[4] == 1) 
+      {
+        EnableDriveTrain = true;
+        Serial.println("Enabled");
+      }
+      //Check for Y-Button to Stop
+      if(incoming_data[5] == 1)
+      { 
+        EnableDriveTrain = false;
+        pwm.setPWM(9, 0, 4096);
+        pwm.setPWM(8, 0, 4096);
+        Serial.println("Disabled");
+      }
+    }
+    
+    // Serial.println(incoming_data);
     if((incoming_data[0] == 0x49) && (incoming_data[1] == 0x50) && (incoming_data[2] == 0x4C))
     {
       IP_registered = 1;
       Serial.println("IP_OK");
     }
-    else if(incoming_data[0] == 0x4D)
+
+    if(EnableDriveTrain)
     {
-      //Process travel direction
-      Serial.println(incoming_data);
-      ProcessMotionControl(incoming_data[1],incoming_data[2]);
+      if(incoming_data[0] == 0x4D)
+      {
+        //Process travel direction
+        Serial.println(incoming_data);
+        ProcessMotionControl(incoming_data[1],incoming_data[2]);
+
+        //Process the front hitch control
+        if(incoming_data[3] != 0xFF)
+        {
+          ProcessFrontHitchControl(incoming_data[3]);
+        } 
+      }
     }
   }
 }

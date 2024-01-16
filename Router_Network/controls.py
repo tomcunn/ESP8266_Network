@@ -8,6 +8,17 @@
 ####################################
 import pygame
 
+def HitchControl(current_position,x_button,b_button):
+    if(x_button):
+        if(current_position < 180):
+            current_position = current_position + 1
+    elif(b_button):
+        if(current_position > 0):
+            current_position = current_position - 1
+    return current_position
+
+
+
 #Given an x,y joystick, convert this into left and track values
 def SpeedControlJoystick(xval,yval):        
         
@@ -68,3 +79,4 @@ def SpeedControlKeyboard(keystroke):
 
 SpeedControlKeyboard.left = 0x7D
 SpeedControlKeyboard.right = 0x7D
+
