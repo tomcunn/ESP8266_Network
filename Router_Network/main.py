@@ -58,19 +58,19 @@ while(run_loop):
 
     myGraphics.AddMouseClicksToList()
 
-    #Get position
-
-    
-    if (mydata[0] == 0x80):
-        x1,y1,x2,y2 = IRCamera.ProcessCameraData(mydata)
-        myGraphics.DrawPosition(x1,y1,red)
-        myGraphics.DrawPosition(x2,y2,green)
-    
     #Process Hitch Controls
     hitch_pos = controls.HitchControl(hitch_pos,x_button,b_button)
-    #print(hitch_pos)
+
+    #Get position
+    if (mydata[0] == 0x80):
+        x1,y1,x2,y2 = IRCamera.ProcessCameraData(mydata)
+        if(hitch_pos == 180):
+            myGraphics.DrawPosition(x1,y1,red)
+            myGraphics.DrawPosition(x2,y2,green)
+        #print(x1,y1)
+
     #Process Controls
-    speedleft,speedright = controls.SpeedControlJoystick(joyx,joyy)
+    speedleft,speedright = controls.SpeedControlJoystick(joyx , joyy)
     #print(int(speedleft),int(speedright))
 
     keyspeedleft,keyspeedright  = controls.SpeedControlKeyboard(key_press)
@@ -80,7 +80,7 @@ while(run_loop):
     if(tractor_grey.connection == True):
         datatoSend = bytes([0x4D,int(speedleft),int(speedright),int(hitch_pos),int(a_button),int(y_button)])
         myUDP.packetsend3(datatoSend,tractor_grey)
-        print(datatoSend)
+        #print(datatoSend)
 
     if(tractor_orange.connection == True):
         datatoSend = bytes([0x4D,int(speedleft),int(speedright),int(hitch_pos)])

@@ -34,12 +34,16 @@ class graphics:
         pygame.init()
         self.season = Season.Tillage
         pygame.display.set_caption("Multi Rover Control")
-        # Set the width and self.HEIGHT of the screen [width,self.HEIGHT]
-        self.WIDTH, self.HEIGHT = pygame.display.Info().current_w, pygame.display.Info().current_h
+        #Set the width and self.HEIGHT of the screen [width,self.HEIGHT]
+        #self.WIDTH, self.HEIGHT = (1000,1000)
+        self.WIDTH, self.HEIGHT = (1280,720) #pygame.display.Info().current_w, pygame.display.Info().current_h
         self.screen = pygame.display.set_mode((0,0),pygame.FULLSCREEN)
+        #self.screen = pygame.display.set_mode((1000, 1000))
         self.field  = np.zeros((self.WIDTH,self.HEIGHT))
         self.screen.fill(lightbrown)
 
+        print(self.WIDTH)
+        print(self.HEIGHT)
         # Used to manage how fast the screen updates
         self.clock = pygame.time.Clock()
 
@@ -113,7 +117,7 @@ class graphics:
             print("Field is: " + str(percent_screen) +" percent of screen")
 
     def GeneratePath(self):
-         TOOL_SIZE = 20
+         TOOL_SIZE = 60
          if(self.key_press == pygame.K_m):
             print("Generating Toolpaths")
             x_list = []
@@ -172,6 +176,5 @@ class graphics:
            
 
     def DrawPosition(self,xpos,ypos,my_color):
-        pygame.draw.circle(self.screen,my_color,(int(xpos*1.2269+19), int(self.HEIGHT - (ypos*1.12994-188))),2)
-
-            
+        pygame.draw.circle(self.screen,my_color,(int(xpos*1.2269+19), int(self.HEIGHT - (ypos*1.12994-188))),10)
+        #pygame.draw.circle(self.screen,(255,255,255),(int(xpos*1.2269+19), int(self.HEIGHT - (ypos*1.12994-188))),30)

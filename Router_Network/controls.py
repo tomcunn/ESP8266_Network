@@ -8,13 +8,15 @@
 ####################################
 import pygame
 
+DEADBAND = 0.20
+
 def HitchControl(current_position,x_button,b_button):
     if(x_button):
         if(current_position < 180):
-            current_position = current_position + 1
+            current_position = 180
     elif(b_button):
         if(current_position > 0):
-            current_position = current_position - 1
+            current_position = 0
     return current_position
 
 
@@ -23,17 +25,17 @@ def HitchControl(current_position,x_button,b_button):
 def SpeedControlJoystick(xval,yval):        
         
     #Execute the drive strategy
-    if(yval < 0.01 and yval > -0.01): 
+    if(yval < DEADBAND and yval > -DEADBAND): 
         left = 125
         right = 125
     else:
         left  = -1*yval*125+125
         right = -1*yval*125+125 
 
-    if (xval > 0.01):
+    if (xval > DEADBAND):
         right = right + xval*200 
         left = left - xval*200 
-    elif (xval < -0.01):
+    elif (xval < -DEADBAND):
         left  = left  - xval*200
         right = right + xval*200 
  
